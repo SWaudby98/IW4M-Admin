@@ -39,6 +39,12 @@ public class Plugin : IPluginV2
 
         IManagementEventSubscriptions.ClientStateAuthorized += OnClientStateAuthorized;
     }
+    public void ToStaff(string message)
+    {
+        foreach (var client in GetClientsAsList()
+                     .Where(c => c.Level > Data.Models.Client.EFClient.Permission.Trusted))
+            client.Tell(message);
+    }
 
     private async Task OnClientStateAuthorized(ClientStateEvent clientState, CancellationToken token)
     {
@@ -67,7 +73,7 @@ public class Plugin : IPluginV2
                     .FirstOrDefaultAsync(cancellationToken: token);
             }
 
-            newPlayer.CurrentServer.ToAdmins(Utilities.CurrentLocalization
+            newPlayer.CurrentServer.ToStaff(Utilities.CurrentLocalization
                 .LocalizationIndex["PLUGINS_WELCOME_FLAG_MESSAGE"]
                 .FormatExt(newPlayer.Name, penaltyReason));
         }
